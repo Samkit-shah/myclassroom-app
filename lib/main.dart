@@ -143,13 +143,6 @@ class _ClassManagerState extends State<ClassManager> {
               child: Text('Register'),
               onPressed: () {
                 setState(() {
-                  showDialog(
-                      context: context,
-                      builder: (BuildContext context) {
-                        return Center(
-                          child: CircularProgressIndicator(),
-                        );
-                      });
                   Navigator.push(
                     context,
                     MaterialPageRoute(builder: (_context) => RegisterPage()),
