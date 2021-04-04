@@ -1,9 +1,9 @@
 import 'package:classmanager/Dashboard.dart';
-import 'package:classmanager/main.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import 'GetAnnouncement.dart';
+import 'LoginRegisterPage.dart';
 
 class MyDrawer extends StatefulWidget {
   @override
@@ -16,7 +16,7 @@ class _MyDrawerState extends State<MyDrawer> {
     prefs.setString('admin', '');
     Navigator.pushAndRemoveUntil(
       context,
-      MaterialPageRoute(builder: (_context) => ClassManager()),
+      MaterialPageRoute(builder: (_context) => LoginRegisterPage()),
       (Route<dynamic> route) => false,
     );
   }

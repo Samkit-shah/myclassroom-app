@@ -1,10 +1,9 @@
-import 'package:classmanager/MyDrawer.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
-import 'AnnouncementModel.dart';
+import 'Model/AnnouncementModel.dart';
 import 'CreateAnnouncement.dart';
-import 'main.dart';
+import 'LoginRegisterPage.dart';
 import 'package:intl/intl.dart';
 
 class GetAnnouncement extends StatefulWidget {
@@ -27,58 +26,180 @@ class _GetAnnouncementState extends State<GetAnnouncement> {
       // print(jsonData);
       return Navigator.pushAndRemoveUntil(
         context,
-        MaterialPageRoute(builder: (_context) => ClassManager()),
+        MaterialPageRoute(builder: (_context) => LoginRegisterPage()),
         (Route<dynamic> route) => false,
       );
     }
   }
 
-  logout() async {
+  deletetAnnouncements(int id) async {
+    var url = Uri.parse(
+        'https://myclassmanager.herokuapp.com/api/deleteannouncement/' +
+            id.toString());
+    var response = await http.delete(url);
+    // String jsonData = response.body;
+    if (response.statusCode == 204) {
+      print(response.statusCode);
+      return true;
+    } else {
+      Navigator.of(context).pop();
+      ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text("Failed To Delete Announcement")));
+      return false;
+    }
+  }
+
+  getaccessright() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setString('admin', '');
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(builder: (_context) => ClassManager()),
-      (Route<dynamic> route) => false,
-    );
+    var isadmin = prefs.getString('admin');
+    if (isadmin != '') {
+      return true;
+    } else {
+      return false;
+    }
   }
 
   @override
+  initState() {
+    super.initState();
+    _response = getAnnouncements();
+    _accessadmin = getaccessright();
+  }
+
+  Future _response;
+  bool _accessadmin;
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text("Announcements"),
-        ),
-        body: FutureBuilder(
-            future: getAnnouncements(),
-            builder: (context, snapshot) {
-              if (snapshot.data == null) {
-                return Container(
-                  child: Center(
-                    child: CircularProgressIndicator(),
-                  ),
-                );
-              } else {
-                return ListView.builder(
-                    itemCount: snapshot.data.length,
-                    itemBuilder: (context, i) {
-                      return ListTile(
-                        leading: const Icon(Icons.check),
-                        title: Text(snapshot.data[i].title),
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                              builder: (context) =>
-                                  DetailScreen(announcement: snapshot.data[i]),
+        body: RefreshIndicator(
+            onRefresh: () async {
+              setState(() {
+                _response = getAnnouncements();
+              });
+              await new Future.delayed(const Duration(seconds: 2), () {});
+            },
+            child: FutureBuilder(
+                future: _response,
+                builder: (context, snapshot) {
+                  if (!snapshot.hasData) {
+                    return Container(
+                      child: Center(
+                        child: CircularProgressIndicator(),
+                      ),
+                    );
+                  } else if (snapshot.data.isEmpty) {
+                    return ListView(
+                        physics: const AlwaysScrollableScrollPhysics(), // new
+                        children: [
+                          Container(
+                            child: Center(
+                              child: Padding(
+                                padding: EdgeInsets.all(10),
+                                child: Text("No Announcements"),
+                              ),
+                            ),
+                          )
+                        ]);
+                  } else {
+                    return ListView.builder(
+                        physics: const AlwaysScrollableScrollPhysics(),
+                        itemCount: snapshot.data.length,
+                        itemBuilder: (context, i) {
+                          return Card(
+                            child: Dismissible(
+                              direction: _accessadmin
+                                  ? DismissDirection.endToStart
+                                  : null,
+                              key: Key(snapshot.data[i].id.toString()),
+                              background: Container(
+                                alignment: AlignmentDirectional.centerEnd,
+                                color: Colors.red,
+                                child: Padding(
+                                  padding:
+                                      EdgeInsets.fromLTRB(0.0, 0.0, 10.0, 0.0),
+                                  child: Icon(
+                                    Icons.delete,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                              confirmDismiss: (direction) async {
+                                final bool res = await showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return AlertDialog(
+                                        content: Text(
+                                            "Are you sure you want to delete?"),
+                                        actions: <Widget>[
+                                          ElevatedButton(
+                                            child: Text(
+                                              "Cancel",
+                                            ),
+                                            onPressed: () {
+                                              Navigator.of(context).pop();
+                                            },
+                                          ),
+                                          ElevatedButton(
+                                            style: ElevatedButton.styleFrom(
+                                              primary: Colors.red, // background
+                                              onPrimary:
+                                                  Colors.black, // foreground
+                                            ),
+                                            child: Text(
+                                              "Delete",
+                                              style: TextStyle(
+                                                  color: Colors.black),
+                                            ),
+                                            onPressed: () {
+                                              deletetAnnouncements(
+                                                  snapshot.data[i].id);
+                                              // print(responsefromfunction);
+
+                                              setState(() {
+                                                snapshot.data.removeAt(i);
+                                              });
+                                              ScaffoldMessenger.of(context)
+                                                  .showSnackBar(SnackBar(
+                                                      content: Text(
+                                                          "Announcement Deleted")));
+
+                                              Navigator.of(context).pop();
+                                            },
+                                          ),
+                                        ],
+                                      );
+                                    });
+                                return res;
+                              },
+                              onDismissed: (direction) {
+                                deletetAnnouncements(snapshot.data[i].id);
+
+                                setState(() {
+                                  snapshot.data.removeAt(i);
+                                });
+                                ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                        content: Text("Announcement Deleted")));
+                              },
+                              child: ListTile(
+                                leading: const Icon(Icons.add_circle),
+                                title: Text(snapshot.data[i].title),
+                                subtitle: Text(snapshot.data[i].label),
+                                onTap: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => DetailScreen(
+                                          announcement: snapshot.data[i]),
+                                    ),
+                                  );
+                                },
+                              ),
                             ),
                           );
-                        },
-                      );
-                    });
-              }
-            }),
-        drawer: MyDrawer(),
+                        });
+                  }
+                })),
         floatingActionButton:
             Column(mainAxisAlignment: MainAxisAlignment.end, children: [
           FutureBuilder(
@@ -128,58 +249,96 @@ class DetailScreen extends StatelessWidget {
     // Use the Todo to create the UI.
     return Scaffold(
       appBar: AppBar(
-        title: Text(announcement.title.toString()),
+        title: Text('Announcement Details'),
       ),
       body: Container(
+          height: 400,
           child: Card(
-        elevation: 15,
-        margin: EdgeInsets.all(30),
-        borderOnForeground: true,
-        child: Column(
-          children: [
-            ListTile(
-              leading: Icon(
-                Icons.analytics,
-                color: Colors.pink,
-                size: 24.0,
-                semanticLabel: 'Text to announce in accessibility modes',
-              ),
-              title: Text(announcement.title != null
-                  ? announcement.title
-                  : 'Announcement Title'),
+            elevation: 15,
+            margin: EdgeInsets.all(30),
+            borderOnForeground: true,
+            child: Column(
+              children: [
+                Ink(
+                  color: Colors.indigo.shade100,
+                  child: ListTile(
+                    leading: Icon(
+                      Icons.import_contacts,
+                      color: Colors.pink,
+                      size: 30.0,
+                      semanticLabel: 'Title',
+                    ),
+                    title: Text(
+                      announcement.title != null
+                          ? announcement.title
+                          : 'Announcement Title',
+                      style: TextStyle(fontSize: 18),
+                    ),
+                  ),
+                ),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 10, horizontal: 15),
+                    child: Text(
+                      announcement.details != null
+                          ? 'Details: \n' + announcement.details
+                          : 'details',
+                      style: TextStyle(fontSize: 18),
+                    ),
+                  ),
+                ),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 10, horizontal: 15),
+                    child: Text(
+                      announcement.label != null
+                          ? 'Label: \n' + announcement.label
+                          : 'label',
+                      style: TextStyle(fontSize: 18),
+                    ),
+                  ),
+                ),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 10, horizontal: 15),
+                    child: Text(
+                      DateFormat('yyyy-MM-dd – kk:mm')
+                                  .format(announcement.deadline) !=
+                              null
+                          ? 'Deadline/Important Date : \n' +
+                              DateFormat('dd/MM/yyyy  hh:mm a')
+                                  .format(announcement.deadline)
+                          : 'Deadline/Important Date',
+                      style: TextStyle(fontSize: 15),
+                    ),
+                  ),
+                ),
+                Align(
+                  alignment: Alignment.centerLeft,
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(
+                        vertical: 10, horizontal: 15),
+                    child: Text(
+                      DateFormat('dd/MM/yyyy  hh:mm a')
+                                  .format(announcement.createdAt) !=
+                              null
+                          ? 'Announcement Date : \n' +
+                              DateFormat('dd/MM/yyyy  hh:mm a')
+                                  .format(announcement.createdAt)
+                          : 'Announcement Date',
+                      style: TextStyle(fontSize: 15),
+                    ),
+                  ),
+                ),
+              ],
             ),
-            Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: Text(announcement.details != null
-                  ? announcement.details
-                  : 'details'),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: Text(
-                  announcement.label != null ? announcement.label : 'label'),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: Text(DateFormat('yyyy-MM-dd – kk:mm')
-                          .format(announcement.deadline) !=
-                      null
-                  ? DateFormat('yyyy-MM-dd – kk:mm')
-                      .format(announcement.deadline)
-                  : 'Deadline'),
-            ),
-            Padding(
-              padding: const EdgeInsets.all(10.0),
-              child: Text(DateFormat('yyyy-MM-dd – kk:mm')
-                          .format(announcement.createdAt) !=
-                      null
-                  ? DateFormat('yyyy-MM-dd – kk:mm')
-                      .format(announcement.createdAt)
-                  : 'Created Date'),
-            ),
-          ],
-        ),
-      )),
+          )),
     );
   }
 }

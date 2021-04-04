@@ -2,8 +2,8 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'RegisterModel.dart';
-import 'main.dart';
+import 'LoginRegisterPage.dart';
+import 'Model/RegisterModel.dart';
 
 class RegisterPage extends StatefulWidget {
   @override
@@ -41,20 +41,41 @@ class _RegisterPageState extends State<RegisterPage> {
     if (response.statusCode == 201) {
       RegisterModel responsedata = registerModelFromJson(jsonData);
       print(responsedata);
-      // SharedPreferences prefs = await SharedPreferences.getInstance();
-      // prefs.setString('loggedin', 'true');
-      // prefs.setString('admin', responsedata.admin.toString());
-      // prefs.setString('classname', responsedata.classname.toString());
-      // prefs.setString('classid', responsedata.classid.toString());
       Navigator.pushAndRemoveUntil(
         context,
-        MaterialPageRoute(builder: (_context) => ClassManager()),
+        MaterialPageRoute(builder: (_context) => LoginRegisterPage()),
         (Route<dynamic> route) => false,
       );
+    } else if (response.statusCode == 406) {
+      Navigator.pop(context);
+      showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+                title: Text("Error"),
+                content: Text(
+                    "The ClassName is already used. \n Please provide other ClassName"),
+                actions: <Widget>[
+                  Center(
+                    child: new ElevatedButton(
+                      onPressed: () {
+                        Navigator.of(context, rootNavigator: true)
+                            .pop(); // dismisses only the dialog and returns nothing
+                      },
+                      child: new Text('Ok I\'will '),
+                    ),
+                  ),
+                ],
+              ));
     } else {
       print(response.reasonPhrase);
       Navigator.pop(context);
-      // _showAlert(context);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content: Text("Failed To Register \n Please Try Again later.")));
+      Navigator.pushAndRemoveUntil(
+        context,
+        MaterialPageRoute(builder: (_context) => LoginRegisterPage()),
+        (Route<dynamic> route) => false,
+      );
     }
   }
 
@@ -70,7 +91,7 @@ class _RegisterPageState extends State<RegisterPage> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text("Dashboard"),
+          title: Text("Register Now"),
         ),
         body: Container(
             child: Padding(
@@ -82,59 +103,219 @@ class _RegisterPageState extends State<RegisterPage> {
                 child: TextField(
                   controller: classname,
                   decoration: InputDecoration(
-                      border: OutlineInputBorder(), hintText: 'Class Name'),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(25.0),
+                        borderSide: BorderSide(
+                          color: Colors.black87,
+                        ),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Colors.black12,
+                          width: 2.0,
+                        ),
+                      ),
+                      labelText: 'ClassName',
+                      labelStyle: TextStyle(
+                        color: Colors.black,
+                      ),
+                      border: OutlineInputBorder(),
+                      hintStyle: TextStyle(
+                        color: Colors.grey,
+                      ),
+                      hintText: 'Enter The Name Of Your Class/Batch'),
                 )),
             Padding(
                 padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
                 child: TextField(
                   controller: adminpassword,
                   decoration: InputDecoration(
-                      border: OutlineInputBorder(), hintText: 'Admin Password'),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(25.0),
+                        borderSide: BorderSide(
+                          color: Colors.black87,
+                        ),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Colors.black12,
+                          width: 2.0,
+                        ),
+                      ),
+                      labelText: 'Admin Password',
+                      labelStyle: TextStyle(
+                        color: Colors.black,
+                      ),
+                      border: OutlineInputBorder(),
+                      hintStyle: TextStyle(
+                        color: Colors.grey,
+                      ),
+                      hintText: 'Password To Be used by the Admin(Cr/Sr)'),
                 )),
             Padding(
                 padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
                 child: TextField(
                   controller: academicyear,
                   decoration: InputDecoration(
-                      border: OutlineInputBorder(), hintText: 'Academic Year'),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(25.0),
+                        borderSide: BorderSide(
+                          color: Colors.black87,
+                        ),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Colors.black12,
+                          width: 2.0,
+                        ),
+                      ),
+                      labelText: 'Academic Year',
+                      labelStyle: TextStyle(
+                        color: Colors.black,
+                      ),
+                      border: OutlineInputBorder(),
+                      hintStyle: TextStyle(
+                        color: Colors.grey,
+                      ),
+                      hintText: 'Academic Year'),
                 )),
             Padding(
                 padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
                 child: TextField(
                   controller: classdivision,
                   decoration: InputDecoration(
-                      border: OutlineInputBorder(), hintText: 'Class Division'),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(25.0),
+                        borderSide: BorderSide(
+                          color: Colors.black87,
+                        ),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Colors.black12,
+                          width: 2.0,
+                        ),
+                      ),
+                      labelText: 'Class Division',
+                      labelStyle: TextStyle(
+                        color: Colors.black,
+                      ),
+                      border: OutlineInputBorder(),
+                      hintStyle: TextStyle(
+                        color: Colors.grey,
+                      ),
+                      hintText: 'Class Division'),
                 )),
             Padding(
                 padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
                 child: TextField(
                   controller: crname,
                   decoration: InputDecoration(
-                      border: OutlineInputBorder(), hintText: 'CR Name'),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(25.0),
+                        borderSide: BorderSide(
+                          color: Colors.black87,
+                        ),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Colors.black12,
+                          width: 2.0,
+                        ),
+                      ),
+                      labelText: 'CR Name',
+                      labelStyle: TextStyle(
+                        color: Colors.black,
+                      ),
+                      border: OutlineInputBorder(),
+                      hintStyle: TextStyle(
+                        color: Colors.grey,
+                      ),
+                      hintText: 'Enter the Cr Name'),
                 )),
             Padding(
                 padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
                 child: TextField(
                   controller: srname,
                   decoration: InputDecoration(
-                      border: OutlineInputBorder(), hintText: 'SR Name'),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(25.0),
+                        borderSide: BorderSide(
+                          color: Colors.black87,
+                        ),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Colors.black12,
+                          width: 2.0,
+                        ),
+                      ),
+                      labelText: 'SR Name',
+                      labelStyle: TextStyle(
+                        color: Colors.black,
+                      ),
+                      border: OutlineInputBorder(),
+                      hintStyle: TextStyle(
+                        color: Colors.grey,
+                      ),
+                      hintText: 'Enter Sr Name'),
                 )),
             Padding(
                 padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
                 child: TextField(
                   controller: contactnumber,
                   decoration: InputDecoration(
-                      border: OutlineInputBorder(), hintText: 'Contact Number'),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(25.0),
+                        borderSide: BorderSide(
+                          color: Colors.black87,
+                        ),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Colors.black12,
+                          width: 2.0,
+                        ),
+                      ),
+                      labelText: 'Contact Number',
+                      labelStyle: TextStyle(
+                        color: Colors.black,
+                      ),
+                      border: OutlineInputBorder(),
+                      hintStyle: TextStyle(
+                        color: Colors.grey,
+                      ),
+                      hintText: 'Contact Number'),
                 )),
             Padding(
                 padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
                 child: TextField(
                   controller: classpassword,
                   decoration: InputDecoration(
-                      border: OutlineInputBorder(), hintText: 'Class Password'),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(25.0),
+                        borderSide: BorderSide(
+                          color: Colors.black87,
+                        ),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                          color: Colors.black12,
+                          width: 2.0,
+                        ),
+                      ),
+                      labelText: 'Class Password',
+                      labelStyle: TextStyle(
+                        color: Colors.black,
+                      ),
+                      border: OutlineInputBorder(),
+                      hintStyle: TextStyle(
+                        color: Colors.grey,
+                      ),
+                      hintText: 'Password To Be used by the students'),
                 )),
             ElevatedButton(
-              child: Text('Register Classroom'),
+              child: Text('Register Class'),
               onPressed: () {
                 String inputClassname = classname.text;
                 String inputadminpassword = adminpassword.text;

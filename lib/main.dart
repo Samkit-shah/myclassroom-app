@@ -1,157 +1,61 @@
-import 'dart:convert';
+import 'dart:async';
 
+import 'package:classmanager/LoginRegisterPage.dart';
 import 'package:flutter/material.dart';
-// import 'package:flutter_session/flutter_session.dart';
-import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'Dashboard.dart';
-import 'LoginModel.dart';
-import 'RegisterPage.dart';
+import 'MainScreen.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   SharedPreferences prefs = await SharedPreferences.getInstance();
   var loggedin = prefs.getString('admin');
   print(loggedin);
-  runApp(MaterialApp(home: loggedin != '' ? Dashboard() : ClassManager()));
+  runApp(MaterialApp(home: MyHomePage()));
 }
 
-class ClassManager extends StatefulWidget {
+class MyHomePage extends StatefulWidget {
   @override
-  _ClassManagerState createState() => _ClassManagerState();
+  _MyHomePageState createState() => _MyHomePageState();
 }
 
-class _ClassManagerState extends State<ClassManager> {
-  loginFunction(
-      String inputClassname, String inputPassword, String rememberme) async {
-    var url = Uri.parse('https://myclassmanager.herokuapp.com/api/login');
-    var response = await http.post(url,
-        headers: <String, String>{
-          'Content-Type': 'application/json; charset=UTF-8',
-        },
-        body: jsonEncode({
-          'classname': inputClassname,
-          'password': inputPassword,
-          'remember': rememberme
-        }));
-    String jsonData = response.body;
-    print(response.body);
-    if (response.statusCode == 201) {
-      Login responsedata = loginFromJson(jsonData);
-      print(responsedata.classname);
-      SharedPreferences prefs = await SharedPreferences.getInstance();
-      prefs.setString('loggedin', 'true');
-      prefs.setString('admin', responsedata.admin.toString());
-      prefs.setString('classname', responsedata.classname.toString());
-      prefs.setString('classid', responsedata.classid.toString());
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (_context) => Dashboard()),
-        (Route<dynamic> route) => false,
-      );
-    } else {
-      print(response.reasonPhrase);
-      Navigator.pop(context);
-      _showAlert(context);
-    }
+class _MyHomePageState extends State<MyHomePage> {
+  checksession() async {
+    WidgetsFlutterBinding.ensureInitialized();
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    var loggedin = prefs.getString('admin');
+    print(loggedin);
+    setState(() {
+      if (loggedin != '') {
+        callbackmodel = LoginRegisterPage();
+      } else {
+        callbackmodel = MainScreen();
+      }
+    });
   }
 
-  void _showAlert(BuildContext context) {
-    showDialog(
-        context: context,
-        builder: (context) => AlertDialog(
-              title: Text("Error"),
-              content: Text("Incorrect Password or ClassName"),
-              actions: <Widget>[
-                new ElevatedButton(
-                  onPressed: () {
-                    Navigator.of(context, rootNavigator: true)
-                        .pop(); // dismisses only the dialog and returns nothing
-                  },
-                  child: new Text('Retry'),
-                ),
-              ],
-            ));
+  var callbackmodel;
+  @override
+  initState() {
+    super.initState();
+    checksession();
+    Timer(
+        Duration(seconds: 4),
+        () => Navigator.pushReplacement(
+            context, MaterialPageRoute(builder: (context) => callbackmodel)));
   }
 
-  TextEditingController classname = TextEditingController();
-  TextEditingController password = TextEditingController();
-  bool _validatename = true;
-  bool _validatepassword = true;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text('My Class Room'),
+      backgroundColor: Colors.black,
+      body: Container(
+          // margin: EdgeInsets.symmetric(vertical: 45, horizontal: 30),
+          child: Center(
+        child: Padding(
+          padding: EdgeInsets.symmetric(vertical: 30, horizontal: 45),
+          child: Image.asset("welcome.gif"),
         ),
-        body: Container(
-            child: Column(
-          children: [
-            Padding(
-                padding: EdgeInsets.all(26.0),
-                child: TextField(
-                  controller: classname,
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                    hintText: 'Class Name',
-                    errorText:
-                        _validatename ? null : 'ClassName Can\'t Be Empty',
-                  ),
-                )),
-            Padding(
-                padding: EdgeInsets.all(26.0),
-                child: TextField(
-                  controller: password,
-                  decoration: InputDecoration(
-                    border: OutlineInputBorder(),
-                    hintText: 'Class Password',
-                    errorText:
-                        _validatepassword ? null : 'Password Can\'t Be Empty',
-                  ),
-                )),
-            ElevatedButton(
-              child: Text('Login'),
-              onPressed: () {
-                String inputClassname = classname.text;
-                String inputPassword = password.text;
-                String rememberme = '0';
-                setState(() {
-                  inputClassname.isEmpty
-                      ? _validatename = false
-                      : _validatename = true;
-                  inputPassword.isEmpty
-                      ? _validatepassword = false
-                      : _validatepassword = true;
-                  if (_validatename == true && _validatepassword == true) {
-                    showDialog(
-                        context: context,
-                        builder: (BuildContext context) {
-                          return Center(
-                            child: CircularProgressIndicator(),
-                          );
-                        });
-                    loginFunction(inputClassname, inputPassword, rememberme);
-                  } else {
-                    return null;
-                  }
-                  // _futureAlbum =
-                });
-                // DataModel data = await submitdata(title, body, userId);
-              },
-            ),
-            ElevatedButton(
-              child: Text('Register'),
-              onPressed: () {
-                setState(() {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (_context) => RegisterPage()),
-                  );
-                });
-                // DataModel data = await submitdata(title, body, userId);
-              },
-            )
-          ],
-        )));
+      )),
+    );
   }
 }

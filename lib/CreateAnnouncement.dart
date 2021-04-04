@@ -1,12 +1,10 @@
 import 'dart:convert';
-
-import 'package:classmanager/GetAnnouncement.dart';
 import 'package:datetime_picker_formfield/datetime_picker_formfield.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
-import 'CreateAnnouncementModel.dart';
+import 'Model/CreateAnnouncementModel.dart';
 
 class CreateAnnouncement extends StatefulWidget {
   @override
@@ -37,14 +35,22 @@ class _CreateAnnouncementState extends State<CreateAnnouncement> {
       CreateAnnouncementModel responsedata =
           createAnnouncementModelFromJson(jsonData);
       print(responsedata);
-      Navigator.pushAndRemoveUntil(
-        context,
-        MaterialPageRoute(builder: (_context) => GetAnnouncement()),
-        (Route<dynamic> route) => false,
-      );
+
+      // Navigator.pushAndRemoveUntil(
+      //   context,
+      //   MaterialPageRoute(
+      //     builder: (_context) => MainScreen(),
+      //   ),
+      //   (Route<dynamic> route) => false,
+      // );
+      Navigator.pop(context);
+      Navigator.pop(context);
     } else {
       print(response.reasonPhrase);
       Navigator.pop(context);
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+          content:
+              Text("Failed To Make Announcement Please Try Again Later.")));
       // _showAlert(context);
     }
   }
@@ -54,11 +60,20 @@ class _CreateAnnouncementState extends State<CreateAnnouncement> {
   TextEditingController details = TextEditingController();
   TextEditingController label = TextEditingController();
   TextEditingController deadline = TextEditingController();
+  List<String> _labels = [
+    'Urgent',
+    'Submission',
+    'Reschedule',
+    'Other'
+  ]; // Option 2
+  String _selectedLabel; // Option 2
+  bool _dropdownSelected = false; // Option 2
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(
-          title: Text("Dashboard"),
+          title: Text("Make Announcement"),
         ),
         body: Container(
             child: Padding(
@@ -73,7 +88,7 @@ class _CreateAnnouncementState extends State<CreateAnnouncement> {
                       disabledBorder:
                           UnderlineInputBorder(borderSide: BorderSide.none),
                       contentPadding: EdgeInsets.only(top: 0.0),
-                      hintText: 'Title'),
+                      hintText: 'Title of the announcement'),
                 )),
             Padding(
                 padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
@@ -86,20 +101,11 @@ class _CreateAnnouncementState extends State<CreateAnnouncement> {
                       hintText: 'Details'),
                 )),
             Padding(
-                padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
-                child: TextField(
-                  controller: label,
-                  decoration: InputDecoration(
-                      disabledBorder:
-                          UnderlineInputBorder(borderSide: BorderSide.none),
-                      contentPadding: EdgeInsets.only(top: 0.0),
-                      hintText: 'label'),
-                )),
-            Padding(
               padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
               child: DateTimeField(
                 format: format,
-                decoration: InputDecoration(hintText: 'DateTime'),
+                decoration: InputDecoration(
+                    hintText: 'Deadline or Date of annoucement'),
                 controller: deadline,
                 onShowPicker: (context, currentValue) async {
                   final date = await showDatePicker(
@@ -120,18 +126,40 @@ class _CreateAnnouncementState extends State<CreateAnnouncement> {
                 },
               ),
             ),
+            Padding(
+              padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
+              child: DropdownButton(
+                  isExpanded: true,
+                  hint: Text(
+                      'Choose the appropriate label'), // Not necessary for Option 1
+                  value: _selectedLabel,
+                  onChanged: (newValue) {
+                    setState(() {
+                      _selectedLabel = newValue;
+                      _dropdownSelected = true;
+                      print(_dropdownSelected);
+                    });
+                  },
+                  items: _labels.map((label) {
+                    return DropdownMenuItem(
+                      child: new Text(label),
+                      value: label,
+                    );
+                  }).toList()),
+            ),
             ElevatedButton(
               child: Text('Make Announcement'),
               onPressed: () {
+                print(_dropdownSelected);
                 String inputtitle = title.text;
                 String inputdetails = details.text;
-                String inputlabel = label.text;
+                String inputlabel = _selectedLabel;
                 String inputdeadline = deadline.text;
                 setState(() {
                   if (inputtitle.isEmpty ||
                       inputdetails.isEmpty ||
-                      inputdetails.isEmpty ||
-                      inputdeadline.isEmpty) {
+                      inputdeadline.isEmpty ||
+                      _dropdownSelected != true) {
                     showDialog(
                         context: context,
                         builder: (context) => AlertDialog(

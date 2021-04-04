@@ -1,9 +1,8 @@
-import 'package:classmanager/MyDrawer.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
-import 'ClassDataModel.dart';
-import 'main.dart';
+import 'Model/ClassDataModel.dart';
+import 'LoginRegisterPage.dart';
 
 class Dashboard extends StatefulWidget {
   @override
@@ -24,99 +23,140 @@ class _DashboardState extends State<Dashboard> {
     } else {
       return Navigator.pushAndRemoveUntil(
         context,
-        MaterialPageRoute(builder: (_context) => ClassManager()),
+        MaterialPageRoute(builder: (_context) => LoginRegisterPage()),
         (Route<dynamic> route) => false,
       );
     }
   }
 
-  logout() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setString('admin', '');
-    Navigator.pushAndRemoveUntil(
-      context,
-      MaterialPageRoute(builder: (_context) => ClassManager()),
-      (Route<dynamic> route) => false,
-    );
-  }
-
+  double elevation = 15;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        appBar: AppBar(
-          title: Text("Dashboard"),
-        ),
-        body: FutureBuilder(
-            future: getClassData(),
-            builder: (context, snapshot) {
-              if (snapshot.hasData) {
-                return Container(
+      body: FutureBuilder(
+          future: getClassData(),
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              return Container(
+                  height: MediaQuery.of(context).size.height * 0.6,
+                  child: GestureDetector(
+                    onLongPress: () {
+                      setState(() {
+                        elevation = 5;
+                      });
+                    },
+                    onTap: () {
+                      setState(() {
+                        elevation = 35;
+                      });
+                    },
                     child: Card(
-                  elevation: 15,
-                  margin: EdgeInsets.all(30),
-                  borderOnForeground: true,
-                  child: Column(
-                    children: [
-                      ListTile(
-                        leading: Icon(
-                          Icons.thumbs_up_down,
-                          color: Colors.black,
-                          size: 24.0,
-                          semanticLabel:
-                              'Text to announce in accessibility modes',
-                        ),
-                        title: Text(snapshot.data.classname != null
-                            ? snapshot.data.classname
-                            : 'ClassName'),
+                      elevation: elevation,
+                      margin: EdgeInsets.all(20),
+                      borderOnForeground: true,
+                      child: Column(
+                        children: [
+                          FutureBuilder(
+                              future: SharedPreferences.getInstance(),
+                              builder: (context, snapshot) {
+                                if (snapshot.hasData) {
+                                  return Center(
+                                    child: UserAccountsDrawerHeader(
+                                        accountName: new Text('Welcome to ' +
+                                            snapshot.data
+                                                .toUpperCase()
+                                                .getString('classname')),
+                                        accountEmail: (snapshot.data
+                                                    .getString('admin') ==
+                                                '1')
+                                            ? new Text('Logged in as CR/SR')
+                                            : new Text('Logged in as Student')),
+                                  );
+                                } else {
+                                  return Center(
+                                    child: new UserAccountsDrawerHeader(
+                                        accountName: new Text('ClassName'),
+                                        accountEmail: null),
+                                  );
+                                }
+                              }),
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 10, horizontal: 10),
+                              child: Text(snapshot.data.id.toString() != null
+                                  ? 'Class Id :-' + snapshot.data.id.toString()
+                                  : 'Class Id'),
+                            ),
+                          ),
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 10, horizontal: 10),
+                              child: Text(
+                                  snapshot.data.academicyear.toString() != null
+                                      ? 'Academic year :-' +
+                                          snapshot.data.academicyear.toString()
+                                      : 'Academic year'),
+                            ),
+                          ),
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 10, horizontal: 10),
+                              child: Text(
+                                  snapshot.data.classdivision.toString() != null
+                                      ? 'Division :-' +
+                                          snapshot.data.classdivision.toString()
+                                      : 'Division'),
+                            ),
+                          ),
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 10, horizontal: 10),
+                              child: Text(
+                                  snapshot.data.crname.toString() != null
+                                      ? 'CR Name :-' +
+                                          snapshot.data.crname.toString()
+                                      : 'CR Name'),
+                            ),
+                          ),
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 10, horizontal: 10),
+                              child: Text(
+                                  snapshot.data.srname.toString() != null
+                                      ? 'SR Name :-' +
+                                          snapshot.data.srname.toString()
+                                      : 'SR Name'),
+                            ),
+                          ),
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: Padding(
+                              padding: const EdgeInsets.symmetric(
+                                  vertical: 10, horizontal: 10),
+                              child: Text(
+                                  snapshot.data.contactnumber.toString() != null
+                                      ? 'Contact Number :-' +
+                                          snapshot.data.contactnumber.toString()
+                                      : 'Contact Number'),
+                            ),
+                          ),
+                        ],
                       ),
-                      Padding(
-                        padding: const EdgeInsets.all(10.0),
-                        child: Text(snapshot.data.id.toString() != null
-                            ? 'Class Id :-' + snapshot.data.id.toString()
-                            : 'Class Id'),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(10.0),
-                        child: Text(
-                            snapshot.data.academicyear.toString() != null
-                                ? 'Academic year :-' +
-                                    snapshot.data.academicyear.toString()
-                                : 'Academic year'),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(10.0),
-                        child: Text(
-                            snapshot.data.classdivision.toString() != null
-                                ? 'Division :-' +
-                                    snapshot.data.classdivision.toString()
-                                : 'Division'),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(10.0),
-                        child: Text(snapshot.data.crname.toString() != null
-                            ? 'CR Name :-' + snapshot.data.crname.toString()
-                            : 'CR Name'),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(10.0),
-                        child: Text(snapshot.data.srname.toString() != null
-                            ? 'SR Name :-' + snapshot.data.srname.toString()
-                            : 'SR Name'),
-                      ),
-                      Padding(
-                        padding: const EdgeInsets.all(10.0),
-                        child: Text(
-                            snapshot.data.contactnumber.toString() != null
-                                ? 'Contact Number :-' +
-                                    snapshot.data.contactnumber.toString()
-                                : 'Contact Number'),
-                      ),
-                    ],
-                  ),
-                ));
-              } else
-                return Center(child: CircularProgressIndicator());
-            }),
-        drawer: MyDrawer());
+                    ),
+                  ));
+            } else
+              return Center(child: CircularProgressIndicator());
+          }),
+    );
   }
 }
