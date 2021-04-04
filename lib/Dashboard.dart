@@ -64,8 +64,8 @@ class _DashboardState extends State<Dashboard> {
                                     child: UserAccountsDrawerHeader(
                                         accountName: new Text('Welcome to ' +
                                             snapshot.data
-                                                .toUpperCase()
-                                                .getString('classname')),
+                                                .getString('classname')
+                                                .toUpperCase()),
                                         accountEmail: (snapshot.data
                                                     .getString('admin') ==
                                                 '1')

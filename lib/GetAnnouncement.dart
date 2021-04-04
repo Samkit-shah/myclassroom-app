@@ -37,7 +37,6 @@ class _GetAnnouncementState extends State<GetAnnouncement> {
         'https://myclassmanager.herokuapp.com/api/deleteannouncement/' +
             id.toString());
     var response = await http.delete(url);
-    // String jsonData = response.body;
     if (response.statusCode == 204) {
       print(response.statusCode);
       return true;
@@ -52,10 +51,14 @@ class _GetAnnouncementState extends State<GetAnnouncement> {
   getaccessright() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var isadmin = prefs.getString('admin');
-    if (isadmin != '') {
-      return true;
+    if (isadmin == '1') {
+      setState(() {
+        _accessadmin = true;
+      });
     } else {
-      return false;
+      setState(() {
+        _accessadmin = false;
+      });
     }
   }
 
@@ -63,7 +66,7 @@ class _GetAnnouncementState extends State<GetAnnouncement> {
   initState() {
     super.initState();
     _response = getAnnouncements();
-    _accessadmin = getaccessright();
+    getaccessright();
   }
 
   Future _response;
@@ -109,7 +112,7 @@ class _GetAnnouncementState extends State<GetAnnouncement> {
                             child: Dismissible(
                               direction: _accessadmin
                                   ? DismissDirection.endToStart
-                                  : null,
+                                  : DismissDirection.none,
                               key: Key(snapshot.data[i].id.toString()),
                               background: Container(
                                 alignment: AlignmentDirectional.centerEnd,
