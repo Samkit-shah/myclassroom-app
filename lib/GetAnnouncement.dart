@@ -20,7 +20,7 @@ class _GetAnnouncementState extends State<GetAnnouncement> {
     var response = await http.get(url);
     String jsonData = response.body;
     if (response.statusCode == 201) {
-      print(jsonData);
+      // print(jsonData);
       return announcementModelFromJson(jsonData);
     } else {
       // print(jsonData);

@@ -5,11 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'MainScreen.dart';
 
-Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
-  SharedPreferences prefs = await SharedPreferences.getInstance();
-  var loggedin = prefs.getString('admin');
-  print(loggedin);
+void main() {
   runApp(MaterialApp(home: MyHomePage()));
 }
 
@@ -23,14 +19,16 @@ class _MyHomePageState extends State<MyHomePage> {
     WidgetsFlutterBinding.ensureInitialized();
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var loggedin = prefs.getString('admin');
-    print(loggedin);
-    setState(() {
-      if (loggedin != '') {
-        callbackmodel = LoginRegisterPage();
-      } else {
+    // print(loggedin);
+    if (loggedin != '') {
+      setState(() {
         callbackmodel = MainScreen();
-      }
-    });
+      });
+    } else {
+      setState(() {
+        callbackmodel = LoginRegisterPage();
+      });
+    }
   }
 
   var callbackmodel;
@@ -39,7 +37,7 @@ class _MyHomePageState extends State<MyHomePage> {
     super.initState();
     checksession();
     Timer(
-        Duration(seconds: 4),
+        Duration(seconds: 3),
         () => Navigator.pushReplacement(
             context, MaterialPageRoute(builder: (context) => callbackmodel)));
   }

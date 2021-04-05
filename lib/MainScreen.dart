@@ -32,7 +32,7 @@ class _MainScreenState extends State<MainScreen> {
   initState() {
     super.initState();
     _title = 'Class Profile';
-    print(_title);
+    // print(_title);
   }
 
   @override
