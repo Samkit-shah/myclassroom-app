@@ -335,21 +335,25 @@ class _RegisterPageState extends State<RegisterPage> {
                       inputcrname.isEmpty) {
                     showDialog(
                         context: context,
-                        builder: (context) => AlertDialog(
-                              title: Text("Error"),
-                              content: Text(
-                                  "All the Fields are Compulsory.Please Enter All the details"),
-                              actions: <Widget>[
-                                Center(
-                                  child: new ElevatedButton(
-                                    onPressed: () {
-                                      Navigator.of(context, rootNavigator: true)
-                                          .pop(); // dismisses only the dialog and returns nothing
-                                    },
-                                    child: new Text('Ok I\'will '),
+                        builder: (context) => WillPopScope(
+                              onWillPop: () async => false,
+                              child: AlertDialog(
+                                title: Text("Error"),
+                                content: Text(
+                                    "All the Fields are Compulsory.Please Enter All the details"),
+                                actions: <Widget>[
+                                  Center(
+                                    child: new ElevatedButton(
+                                      onPressed: () {
+                                        Navigator.of(context,
+                                                rootNavigator: true)
+                                            .pop(); // dismisses only the dialog and returns nothing
+                                      },
+                                      child: new Text('Ok I\'will '),
+                                    ),
                                   ),
-                                ),
-                              ],
+                                ],
+                              ),
                             ));
                   } else {
                     showDialog(

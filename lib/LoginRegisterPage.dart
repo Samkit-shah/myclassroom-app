@@ -110,7 +110,7 @@ class _LoginRegisterPageState extends State<LoginRegisterPage> {
                               ),
                             ),
                             border: OutlineInputBorder(),
-                            errorText: _validatepassword
+                            errorText: _validatename
                                 ? null
                                 : 'ClassName Can\'t Be Empty',
                             labelText: 'ClassName',
@@ -200,8 +200,11 @@ class _LoginRegisterPageState extends State<LoginRegisterPage> {
                                   showDialog(
                                       context: context,
                                       builder: (BuildContext context) {
-                                        return Center(
-                                          child: CircularProgressIndicator(),
+                                        return WillPopScope(
+                                          onWillPop: () async => false,
+                                          child: Center(
+                                            child: CircularProgressIndicator(),
+                                          ),
                                         );
                                       });
                                   loginFunction(inputClassname, inputPassword,

@@ -87,7 +87,22 @@ class _GetAnnouncementState extends State<GetAnnouncement> {
                   if (!snapshot.hasData) {
                     return Container(
                       child: Center(
-                        child: CircularProgressIndicator(),
+                        child: Container(
+                            padding: EdgeInsets.fromLTRB(
+                                0.0,
+                                MediaQuery.of(context).size.height * 0.3,
+                                0.0,
+                                0),
+                            child: Column(children: [
+                              Center(child: CircularProgressIndicator()),
+                              SizedBox(
+                                height: 70,
+                              ),
+                              Center(
+                                child: Text(
+                                    'If its taking too long Please Check your Internet Connection'),
+                              )
+                            ])),
                       ),
                     );
                   } else if (snapshot.data.isEmpty) {
@@ -233,7 +248,19 @@ class _GetAnnouncementState extends State<GetAnnouncement> {
                         ));
                   }
                 } else {
-                  return Center(child: CircularProgressIndicator());
+                  return Container(
+                      padding: EdgeInsets.fromLTRB(0.0,
+                          MediaQuery.of(context).size.height * 0.3, 0.0, 0),
+                      child: Column(children: [
+                        Center(child: CircularProgressIndicator()),
+                        SizedBox(
+                          height: 70,
+                        ),
+                        Center(
+                          child: Text(
+                              'If its taking too long Please Check your Internet Connection'),
+                        )
+                      ]));
                 }
               })
         ]));

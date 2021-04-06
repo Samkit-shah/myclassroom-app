@@ -155,7 +155,19 @@ class _DashboardState extends State<Dashboard> {
                     ),
                   ));
             } else
-              return Center(child: CircularProgressIndicator());
+              return Container(
+                  padding: EdgeInsets.fromLTRB(
+                      0.0, MediaQuery.of(context).size.height * 0.3, 0.0, 0),
+                  child: Column(children: [
+                    Center(child: CircularProgressIndicator()),
+                    SizedBox(
+                      height: 70,
+                    ),
+                    Center(
+                      child: Text(
+                          'If its taking too long Please Check your Internet Connection'),
+                    )
+                  ]));
           }),
     );
   }

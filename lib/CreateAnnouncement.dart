@@ -181,8 +181,11 @@ class _CreateAnnouncementState extends State<CreateAnnouncement> {
                     showDialog(
                         context: context,
                         builder: (BuildContext context) {
-                          return Center(
-                            child: CircularProgressIndicator(),
+                          return WillPopScope(
+                            onWillPop: () async => false,
+                            child: Center(
+                              child: CircularProgressIndicator(),
+                            ),
                           );
                         });
                     createAnnouncementFunction(

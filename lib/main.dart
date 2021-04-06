@@ -18,9 +18,8 @@ class _MyHomePageState extends State<MyHomePage> {
   checksession() async {
     WidgetsFlutterBinding.ensureInitialized();
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    var loggedin = prefs.getString('admin');
-    // print(loggedin);
-    if (loggedin != '') {
+    var loggedin = prefs.getString('loggedin');
+    if (loggedin != 'false' && loggedin != null) {
       setState(() {
         callbackmodel = MainScreen();
       });
@@ -32,6 +31,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   var callbackmodel;
+
   @override
   initState() {
     super.initState();
@@ -45,15 +45,25 @@ class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: Colors.white,
       body: Container(
-          // margin: EdgeInsets.symmetric(vertical: 45, horizontal: 30),
+          margin: EdgeInsets.symmetric(vertical: 100, horizontal: 0),
           child: Center(
-        child: Padding(
-          padding: EdgeInsets.symmetric(vertical: 30, horizontal: 45),
-          child: Image.asset("welcome.gif"),
-        ),
-      )),
+            child: Container(
+              child: Column(
+                children: [
+                  Padding(
+                    padding: EdgeInsets.symmetric(vertical: 30, horizontal: 45),
+                    child: Image.asset("welcome.gif"),
+                  ),
+                  // Text(
+                  //   'Loading.....',
+                  //   style: TextStyle(color: Colors.white.withOpacity(0.6)),
+                  // )
+                ],
+              ),
+            ),
+          )),
     );
   }
 }

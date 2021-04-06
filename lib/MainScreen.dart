@@ -18,9 +18,11 @@ class _MainScreenState extends State<MainScreen> {
     GetAnnouncement(),
     // GetAnnouncement(),
   ];
+
   logout() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     prefs.setString('admin', '');
+    prefs.setString('loggedin', 'false');
     Navigator.pushAndRemoveUntil(
       context,
       MaterialPageRoute(builder: (_context) => LoginRegisterPage()),
