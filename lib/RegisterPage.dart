@@ -150,11 +150,12 @@ class _RegisterPageState extends State<RegisterPage> {
                       hintStyle: TextStyle(
                         color: Colors.grey,
                       ),
-                      hintText: 'Password To Be used by the Admin(Cr/Sr)'),
+                      hintText: 'Password to be used by the Admin(Cr/Sr)'),
                 )),
             Padding(
                 padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
                 child: TextField(
+                  keyboardType: TextInputType.number,
                   controller: academicyear,
                   decoration: InputDecoration(
                       focusedBorder: OutlineInputBorder(
@@ -263,6 +264,7 @@ class _RegisterPageState extends State<RegisterPage> {
             Padding(
                 padding: EdgeInsets.symmetric(vertical: 10, horizontal: 15),
                 child: TextField(
+                  keyboardType: TextInputType.number,
                   controller: contactnumber,
                   decoration: InputDecoration(
                       focusedBorder: OutlineInputBorder(
@@ -312,7 +314,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       hintStyle: TextStyle(
                         color: Colors.grey,
                       ),
-                      hintText: 'Password To Be used by the students'),
+                      hintText: 'Password to be used by the students'),
                 )),
             ElevatedButton(
               child: Text('Register Class'),
